@@ -141,7 +141,10 @@ export default function Nav({ theme, onTheme, scan, onScan, onPower, onTune }) {
   return (
     <header className="sticky top-[env(safe-area-inset-top,0px)] z-40 h-[72px]">
       <div className="relative mx-auto flex h-full max-w-[1180px] items-center justify-between px-4 sm:px-6">
-        <a href="#home" className="hidden items-center gap-2.5 font-display text-lg font-extrabold tracking-tight md:flex">
+        <a
+          href="#home"
+          className="hidden items-center gap-2.5 rounded-full border border-line bg-bg/70 py-2 pr-4 pl-2 font-display text-lg leading-none font-extrabold tracking-tight backdrop-blur md:flex"
+        >
           <span className="rounded-[5px] border border-accent px-1.5 py-[5px] font-mono text-[10px] leading-none font-semibold tracking-[0.14em] text-accent">
             ON AIR
           </span>
