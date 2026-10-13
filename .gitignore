@@ -1,0 +1,7 @@
+node_modules
+dist
+.DS_Store
+*.local
+
+# Source export of the resume (served as public/resume.pdf)
+Profile (2).pdf

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Sachin Verma · Full-stack Engineer</title>
+    <meta name="description" content="Sachin Verma, full-stack engineer in Bengaluru. Flutter apps and the Node.js and Go backends behind them: 6+ production apps, real-time systems on Kafka and WebSockets." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="%VITE_SITE_URL%" />
+    <meta property="og:title" content="Sachin Verma · On Air" />
+    <meta property="og:description" content="Full-stack engineer. Flutter apps and the backends behind them. Press OK to tune in." />
+    <meta property="og:image" content="%VITE_SITE_URL%og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A television showing the name Sachin Verma as a broadcast ident" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#0A0F1A" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+    <script>
+      // Set theme and intro mode before first paint so there's no flash.
+      ;(function () {
+        var d = document.documentElement
+        try {
+          var t = localStorage.getItem('theme')
+          if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+          d.dataset.theme = t
+        } catch (e) {
+          d.dataset.theme = 'dark'
+        }
+        // full: first visit · quick: 600ms power-on (repeat visit or deep link) · none: reduced motion
+        try {
+          var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+          var deep = location.hash && location.hash !== '#home'
+          d.dataset.intro = reduced ? 'none' : sessionStorage.getItem('onair:seen') || deep ? 'quick' : 'full'
+        } catch (e) {
+          d.dataset.intro = 'quick'
+        }
+        if (d.dataset.intro !== 'full' && d.dataset.theme === 'light') {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#EEF2F7')
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p style="font-family: system-ui; padding: 24px">Sachin Verma, full-stack engineer. Email vermas7008@gmail.com. This site needs JavaScript for its TV intro.</p>
+    </noscript>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

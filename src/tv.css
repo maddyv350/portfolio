@@ -1,0 +1,544 @@
+/* ---------- The television ----------
+   One TV is used for the intro and the hero. Sizes are in cqw (percent of the TV's width) so it
+   stays in proportion from the 330px mobile hero to the 800px intro. */
+
+@property --glow {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ff6b57;
+}
+
+.tv-root {
+  position: relative;
+  container-type: inline-size;
+  transform-origin: 50% 50%;
+}
+/* During the intro the TV sits above the room overlay, centred by a FLIP transform. */
+html[data-intro='full'] .tv-hero {
+  z-index: 70;
+}
+
+/* Light spill: the room glows in the colour of whatever is on screen. */
+.tv-glow {
+  position: absolute;
+  inset: -16% -14% -6%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--glow) 34%, transparent), transparent);
+  filter: blur(26px);
+  opacity: 0;
+  transition:
+    opacity 1.2s,
+    --glow 0.9s;
+}
+.tv-root[data-power='on'] .tv-glow {
+  opacity: 1;
+}
+
+.tv-tilt {
+  transform: perspective(1400px) rotateY(calc(var(--px, 0) * 12deg)) rotateX(calc(var(--py, 0) * -8deg));
+  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.1, 1);
+}
+
+.tv-body {
+  position: relative;
+  border-radius: 6cqw;
+  padding: 3.6cqw 3.6cqw 0;
+  background: linear-gradient(165deg, #2a3449 0%, #161d2b 34%, #0e131d 100%);
+  box-shadow:
+    0 50px 90px -30px rgba(2, 8, 20, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.tv-well {
+  padding: 1.1cqw;
+  border-radius: 4.4cqw;
+  background: #05080e;
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.9),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* The glass. A size container of its own, so scenes scale with the screen. */
+.scr {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  isolation: isolate;
+  container-type: inline-size;
+  border-radius: 3.4cqw / 3.6cqw;
+  background: linear-gradient(180deg, #111927, #06090f);
+  color: #fff;
+}
+.scr > *,
+.scr-picture > * {
+  position: absolute;
+  inset: 0;
+}
+.scr-picture {
+  transform-origin: 50% 50%;
+}
+.scr[data-show='off'] .scr-picture {
+  opacity: 0;
+}
+.scr-static {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+.scr[data-static='true'] .scr-static {
+  opacity: 0.94;
+}
+.scr-sync {
+  top: -22%;
+  bottom: auto;
+  height: 20%;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.16) 40%, rgba(0, 0, 0, 0.4) 62%, transparent);
+}
+.scr[data-static='true'] .scr-sync {
+  opacity: 1;
+  animation: sync-roll 0.6s linear infinite;
+}
+@keyframes sync-roll {
+  to {
+    transform: translateY(720%);
+  }
+}
+
+/* CRT beam: a dot that stretches into a line before the picture snaps open. */
+.scr-dot {
+  inset: auto;
+  left: 50%;
+  top: 50%;
+  width: 3cqw;
+  height: 3cqw;
+  margin: -1.5cqw;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 2cqw 1cqw rgba(205, 228, 255, 0.9),
+    0 0 7cqw 2.5cqw rgba(140, 180, 255, 0.45);
+  opacity: 0;
+  pointer-events: none;
+}
+.scr-line {
+  inset: auto 0;
+  top: 50%;
+  height: 0.8cqw;
+  margin-top: -0.4cqw;
+  background: #fff;
+  box-shadow:
+    0 0 1.6cqw 0.6cqw rgba(205, 228, 255, 0.85),
+    0 0 5cqw 1.6cqw rgba(140, 180, 255, 0.4);
+  opacity: 0;
+  pointer-events: none;
+}
+.scr-flash {
+  background: #eaf2ff;
+  opacity: 0;
+  pointer-events: none;
+}
+.scr-scan {
+  pointer-events: none;
+  background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.24) 0 1px, transparent 1px 3px);
+  opacity: 0.5;
+}
+.scr-glass {
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(60% 42% at 20% 6%, rgba(255, 255, 255, 0.13), transparent 70%),
+    radial-gradient(130% 115% at 50% 45%, transparent 56%, rgba(0, 0, 0, 0.5) 100%);
+  box-shadow:
+    inset 0 0 4cqw rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Quick 600ms power-on for repeat visits; the full intro drives the same layers with GSAP. */
+.scr[data-crt='on'] .scr-picture {
+  animation: crt-on 0.6s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+}
+.scr[data-crt='on'] .scr-line {
+  animation: crt-line 0.6s linear both;
+}
+.scr[data-crt='on'] .scr-flash {
+  animation: crt-flash 0.6s ease-out both;
+}
+@keyframes crt-on {
+  0%,
+  30% {
+    transform: scale(1, 0.006);
+  }
+  72% {
+    transform: scale(1, 1.04);
+  }
+}
+@keyframes crt-line {
+  0% {
+    opacity: 1;
+    transform: scaleX(0);
+  }
+  30% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  42%,
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+@keyframes crt-flash {
+  0%,
+  30% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---------- On-screen display ---------- */
+.osd {
+  pointer-events: none;
+  font-family: var(--font-mono);
+}
+.osd-live {
+  position: absolute;
+  top: 4cqw;
+  left: 4cqw;
+  display: flex;
+  align-items: center;
+  gap: 1.1cqw;
+  padding: 0.9cqw 1.5cqw;
+  border-radius: 0.9cqw;
+  background: #e5483a;
+  color: #fff;
+  font-size: 2.2cqw;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.14em;
+}
+.osd-live i {
+  width: 1.2cqw;
+  height: 1.2cqw;
+  border-radius: 50%;
+  background: #fff;
+  animation: blink 1.4s steps(1) infinite;
+}
+.osd-ch {
+  position: absolute;
+  top: 3.4cqw;
+  right: 4cqw;
+  padding: 1cqw 1.6cqw;
+  border-radius: 1cqw;
+  background: rgba(3, 6, 12, 0.5);
+  color: #7dffa2;
+  text-align: right;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 0.9cqw rgba(74, 222, 128, 0.65),
+    0 0.2cqw 0 rgba(0, 0, 0, 0.6);
+  font-size: 2.2cqw;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  animation: osd-in 0.9s steps(1) both;
+}
+.osd-ch b {
+  display: block;
+  font-size: 5cqw;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+}
+/* OSD blinks in, the way a set confirms a channel change. */
+@keyframes osd-in {
+  0% {
+    opacity: 1;
+  }
+  12% {
+    opacity: 0;
+  }
+  22% {
+    opacity: 1;
+  }
+}
+
+/* ---------- Chin, LED, feet ---------- */
+.tv-chin {
+  display: flex;
+  align-items: center;
+  gap: 2cqw;
+  height: 10.5cqw;
+  padding: 0 1.4cqw;
+}
+.tv-led {
+  width: 1.5cqw;
+  height: 1.5cqw;
+  min-width: 6px;
+  min-height: 6px;
+  border-radius: 50%;
+  background: #ff4b3e;
+  box-shadow: 0 0 1.4cqw rgba(255, 75, 62, 0.85);
+  transition:
+    background 0.15s,
+    box-shadow 0.15s;
+  animation: led-breathe 3.2s ease-in-out infinite;
+}
+.tv-root[data-power='on'] .tv-led {
+  background: #4ade80;
+  box-shadow: 0 0 1.6cqw rgba(74, 222, 128, 0.9);
+  animation: none;
+}
+@keyframes led-breathe {
+  50% {
+    opacity: 0.45;
+  }
+}
+.tv-brand {
+  font-family: var(--font-mono);
+  font-size: max(1.8cqw, 9px);
+  letter-spacing: 0.22em;
+  color: #5b6a82;
+}
+.tv-grille {
+  width: 13cqw;
+  height: 3.6cqw;
+  background-image: radial-gradient(circle, #05080e 38%, transparent 42%);
+  background-size: 1.3cqw 1.3cqw;
+  opacity: 0.9;
+}
+.tv-btn {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  min-height: 24px;
+  width: 7.5cqw;
+  height: 5.2cqw;
+  border-radius: 1.4cqw;
+  background: #1b2333;
+  color: #9aa8bd;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 1px 2px rgba(0, 0, 0, 0.5);
+  font-family: var(--font-mono);
+  font-size: max(1.8cqw, 10px);
+  font-weight: 600;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    transform 0.1s;
+}
+.tv-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.tv-btn:not(:disabled):hover {
+  background: #252f43;
+  color: #fff;
+}
+.tv-btn:active {
+  transform: translateY(1px);
+}
+.tv-feet {
+  position: relative;
+  height: 4.2cqw;
+}
+.tv-feet::before,
+.tv-feet::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 7cqw;
+  height: 100%;
+  background: linear-gradient(180deg, #121926, #0a0e16);
+  clip-path: polygon(10% 0, 90% 0, 70% 100%, 30% 100%);
+}
+.tv-feet::before {
+  left: 13%;
+}
+.tv-feet::after {
+  right: 13%;
+}
+
+/* ---------- Intro: the room on standby ---------- */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  background: #070b14;
+  color: #e8eef7;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.intro > * {
+  position: absolute;
+}
+.intro-wall {
+  inset: -4%;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 31px, #182235 31px 32px),
+    repeating-linear-gradient(90deg, transparent 0 31px, #182235 31px 32px);
+  mask-image: radial-gradient(ellipse 58% 52% at 50% 40%, #000 18%, transparent 78%);
+  transform: translate(calc(var(--px, 0) * -12px), calc(var(--py, 0) * -8px));
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.1, 1);
+}
+/* Screen light on the wall once the set is on. */
+.intro-spill {
+  inset: 0;
+  background: radial-gradient(ellipse 48% 42% at 50% var(--tv-cy, 42%), rgba(150, 185, 255, 0.16), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+.intro[data-step='booting'] .intro-spill {
+  opacity: 1;
+}
+.intro-floor {
+  inset: auto 0 0;
+  top: var(--tv-bottom, 74%);
+  background: linear-gradient(180deg, #0d1422 0%, #080c16 45%, #05080f 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.intro-floor::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  width: min(70vw, 760px);
+  height: 40px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.7), transparent);
+}
+.intro-vignette {
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 95% at 50% 42%, transparent 48%, rgba(0, 0, 0, 0.7));
+}
+.intro-bar {
+  top: max(14px, env(safe-area-inset-top));
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #8392a9;
+}
+.intro-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid #1f2a3c;
+  border-radius: 999px;
+  background: rgba(10, 15, 26, 0.7);
+  color: #e8eef7;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.intro-btn:hover {
+  border-color: #ff6b57;
+}
+.intro-press {
+  top: calc(var(--tv-bottom, 74%) + 3.4vh);
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.intro-remote {
+  inset: 0;
+  pointer-events: none;
+}
+.intro-press button,
+.intro-caption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #e8eef7;
+  cursor: pointer;
+}
+.intro-press kbd {
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: #ff6b57;
+  color: #1a0705;
+  font-family: inherit;
+  letter-spacing: 0.06em;
+  box-shadow: 0 3px 0 #b8402f;
+}
+.intro-press small {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #8392a9;
+}
+.intro-sound {
+  left: 16px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  animation: page-fade 0.4s both;
+}
+
+/* The remote rests on the table in the foreground; it drifts a little more than the TV (parallax). */
+.remote {
+  position: absolute;
+  width: clamp(88px, 10.5vw, 148px);
+  right: max(4vw, calc(50vw - 600px));
+  bottom: calc(clamp(88px, 10.5vw, 148px) * -1.45);
+  transform: translate(calc(var(--px, 0) * -30px), calc(var(--py, 0) * -16px)) rotate(-24deg);
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.1, 1);
+  filter: drop-shadow(0 30px 30px rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+}
+.remote svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+.remote-ok {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+.remote-ir {
+  opacity: 0;
+}
+@media (max-width: 639px) {
+  .remote {
+    right: 3vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-tilt,
+  .intro-wall,
+  .remote {
+    transform: none;
+    transition: none;
+  }
+  .tv-led,
+  .osd-live i,
+  .osd-ch,
+  .scr[data-static='true'] .scr-sync,
+  .scr[data-crt='on'] .scr-picture,
+  .scr[data-crt='on'] .scr-line,
+  .scr[data-crt='on'] .scr-flash {
+    animation: none;
+  }
+}
